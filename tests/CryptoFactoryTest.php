@@ -62,7 +62,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 哈希算法数据提供者
      */
-    public function hashAlgorithmProvider(): array
+    protected static function hashAlgorithmProvider(): array
     {
         return [
             ['sha256'],
@@ -94,7 +94,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * MAC算法数据提供者
      */
-    public function macAlgorithmProvider(): array
+    protected static function macAlgorithmProvider(): array
     {
         return [
             ['hmac-sha256'],
@@ -126,7 +126,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-GCM算法数据提供者
      */
-    public function aesGcmProvider(): array
+    protected static function aesGcmProvider(): array
     {
         return [
             ['aes-128-gcm', 128],
@@ -149,7 +149,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-CBC算法数据提供者
      */
-    public function aesCbcProvider(): array
+    protected static function aesCbcProvider(): array
     {
         return [
             ['aes-128-cbc', 128],
@@ -172,7 +172,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-CTR算法数据提供者
      */
-    public function aesCtrProvider(): array
+    protected static function aesCtrProvider(): array
     {
         return [
             ['aes-128-ctr', 128],
@@ -204,7 +204,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 3DES算法数据提供者
      */
-    public function tripleDesProvider(): array
+    protected static function tripleDesProvider(): array
     {
         return [
             ['3des'],
@@ -237,7 +237,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * KDF算法数据提供者
      */
-    public function kdfAlgorithmProvider(): array
+    protected static function kdfAlgorithmProvider(): array
     {
         return [
             ['hkdf-sha256'],
@@ -269,7 +269,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 非对称加密算法数据提供者
      */
-    public function asymmetricCipherProvider(): array
+    protected static function asymmetricCipherProvider(): array
     {
         return [
             ['rsa', RSA::class],
@@ -304,7 +304,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 密钥交换算法数据提供者
      */
-    public function keyExchangeProvider(): array
+    protected static function keyExchangeProvider(): array
     {
         return [
             ['x25519', X25519::class],
@@ -338,7 +338,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 椭圆曲线数据提供者
      */
-    public function curveProvider(): array
+    protected static function curveProvider(): array
     {
         return [
             ['nistp256', NISTP256::class],
@@ -376,7 +376,7 @@ class CryptoFactoryTest extends TestCase
     /**
      * 密钥格式处理类型数据提供者
      */
-    public function keyFormatProvider(): array
+    protected static function keyFormatProvider(): array
     {
         return [
             ['basic', PemDerFormat::class],
