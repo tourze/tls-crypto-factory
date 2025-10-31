@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Tourze\TLSCryptoFactory\Tests;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\TLSCryptoAsymmetric\Cipher\DSA;
 use Tourze\TLSCryptoAsymmetric\Cipher\ECDSA;
 use Tourze\TLSCryptoAsymmetric\Cipher\Ed25519;
 use Tourze\TLSCryptoAsymmetric\Cipher\Ed448;
 use Tourze\TLSCryptoAsymmetric\Cipher\RSA;
+use Tourze\TLSCryptoAsymmetric\Contract\AsymmetricCipherInterface;
+use Tourze\TLSCryptoCurves\Contract\CurveInterface;
 use Tourze\TLSCryptoCurves\Curve25519;
 use Tourze\TLSCryptoCurves\Curve448;
 use Tourze\TLSCryptoCurves\NISTP256;
@@ -20,6 +25,7 @@ use Tourze\TLSCryptoFactory\Exception\CryptoException;
 use Tourze\TLSCryptoHash\Contract\HashInterface;
 use Tourze\TLSCryptoHash\Contract\KdfInterface;
 use Tourze\TLSCryptoHash\Contract\MacInterface;
+use Tourze\TLSCryptoKeyExchange\Contract\KeyExchangeInterface;
 use Tourze\TLSCryptoKeyExchange\DHE;
 use Tourze\TLSCryptoKeyExchange\ECDHE;
 use Tourze\TLSCryptoKeyExchange\X25519;
@@ -36,9 +42,18 @@ use Tourze\TLSKeyFormat\PemDerFormat;
 
 /**
  * CryptoFactory 测试类
+ *
+ * @internal
  */
-class CryptoFactoryTest extends TestCase
+#[CoversClass(CryptoFactory::class)]
+#[RunTestsInSeparateProcesses]
+final class CryptoFactoryTest extends AbstractIntegrationTestCase
 {
+    protected function onSetUp(): void
+    {
+        // No special setup needed for factory tests
+    }
+
     /**
      * 测试创建随机数生成器
      */
@@ -50,9 +65,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建哈希函数
-     *
-     * @dataProvider hashAlgorithmProvider
      */
+    #[DataProvider('hashAlgorithmProvider')]
     public function testCreateHash(string $algorithm): void
     {
         $hash = CryptoFactory::createHash($algorithm);
@@ -62,7 +76,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * 哈希算法数据提供者
      */
-    protected static function hashAlgorithmProvider(): array
+    /**
+     * @return array<int, list<string>>
+     */
+    public static function hashAlgorithmProvider(): array
     {
         return [
             ['sha256'],
@@ -82,9 +99,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建消息认证码
-     *
-     * @dataProvider macAlgorithmProvider
      */
+    #[DataProvider('macAlgorithmProvider')]
     public function testCreateMac(string $algorithm): void
     {
         $mac = CryptoFactory::createMac($algorithm);
@@ -94,7 +110,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * MAC算法数据提供者
      */
-    protected static function macAlgorithmProvider(): array
+    /**
+     * @return array<int, list<string>>
+     */
+    public static function macAlgorithmProvider(): array
     {
         return [
             ['hmac-sha256'],
@@ -114,9 +133,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建对称加密算法 - AES-GCM
-     *
-     * @dataProvider aesGcmProvider
      */
+    #[DataProvider('aesGcmProvider')]
     public function testCreateCipherAesGcm(string $algorithm, int $expectedKeySize): void
     {
         $cipher = CryptoFactory::createCipher($algorithm);
@@ -126,7 +144,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-GCM算法数据提供者
      */
-    protected static function aesGcmProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: int}>
+     */
+    public static function aesGcmProvider(): array
     {
         return [
             ['aes-128-gcm', 128],
@@ -137,9 +158,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建对称加密算法 - AES-CBC
-     *
-     * @dataProvider aesCbcProvider
      */
+    #[DataProvider('aesCbcProvider')]
     public function testCreateCipherAesCbc(string $algorithm, int $expectedKeySize): void
     {
         $cipher = CryptoFactory::createCipher($algorithm);
@@ -149,7 +169,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-CBC算法数据提供者
      */
-    protected static function aesCbcProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: int}>
+     */
+    public static function aesCbcProvider(): array
     {
         return [
             ['aes-128-cbc', 128],
@@ -160,9 +183,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建对称加密算法 - AES-CTR
-     *
-     * @dataProvider aesCtrProvider
      */
+    #[DataProvider('aesCtrProvider')]
     public function testCreateCipherAesCtr(string $algorithm, int $expectedKeySize): void
     {
         $cipher = CryptoFactory::createCipher($algorithm);
@@ -172,7 +194,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * AES-CTR算法数据提供者
      */
-    protected static function aesCtrProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: int}>
+     */
+    public static function aesCtrProvider(): array
     {
         return [
             ['aes-128-ctr', 128],
@@ -192,9 +217,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建对称加密算法 - 3DES
-     *
-     * @dataProvider tripleDesProvider
      */
+    #[DataProvider('tripleDesProvider')]
     public function testCreateCipherTripleDes(string $algorithm): void
     {
         $cipher = CryptoFactory::createCipher($algorithm);
@@ -204,7 +228,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * 3DES算法数据提供者
      */
-    protected static function tripleDesProvider(): array
+    /**
+     * @return array<int, list<string>>
+     */
+    public static function tripleDesProvider(): array
     {
         return [
             ['3des'],
@@ -225,9 +252,8 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建密钥导出函数
-     *
-     * @dataProvider kdfAlgorithmProvider
      */
+    #[DataProvider('kdfAlgorithmProvider')]
     public function testCreateKdf(string $algorithm): void
     {
         $kdf = CryptoFactory::createKdf($algorithm);
@@ -237,7 +263,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * KDF算法数据提供者
      */
-    protected static function kdfAlgorithmProvider(): array
+    /**
+     * @return array<int, list<string>>
+     */
+    public static function kdfAlgorithmProvider(): array
     {
         return [
             ['hkdf-sha256'],
@@ -257,19 +286,25 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建非对称加密算法
-     *
-     * @dataProvider asymmetricCipherProvider
+     * @param string $algorithm
+     * @param class-string<object> $expectedClass
      */
+    #[DataProvider('asymmetricCipherProvider')]
     public function testCreateAsymmetricCipher(string $algorithm, string $expectedClass): void
     {
+        /** @phpstan-var class-string<object> $expectedClass */
         $cipher = CryptoFactory::createAsymmetricCipher($algorithm);
         $this->assertInstanceOf($expectedClass, $cipher);
+        $this->assertInstanceOf(AsymmetricCipherInterface::class, $cipher);
     }
 
     /**
      * 非对称加密算法数据提供者
      */
-    protected static function asymmetricCipherProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: class-string}>
+     */
+    public static function asymmetricCipherProvider(): array
     {
         return [
             ['rsa', RSA::class],
@@ -292,19 +327,25 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建密钥交换算法
-     *
-     * @dataProvider keyExchangeProvider
+     * @param string $algorithm
+     * @param class-string<object> $expectedClass
      */
+    #[DataProvider('keyExchangeProvider')]
     public function testCreateKeyExchange(string $algorithm, string $expectedClass): void
     {
+        /** @phpstan-var class-string<object> $expectedClass */
         $keyExchange = CryptoFactory::createKeyExchange($algorithm);
         $this->assertInstanceOf($expectedClass, $keyExchange);
+        $this->assertInstanceOf(KeyExchangeInterface::class, $keyExchange);
     }
 
     /**
      * 密钥交换算法数据提供者
      */
-    protected static function keyExchangeProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: class-string}>
+     */
+    public static function keyExchangeProvider(): array
     {
         return [
             ['x25519', X25519::class],
@@ -326,19 +367,25 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建椭圆曲线
-     *
-     * @dataProvider curveProvider
+     * @param string $curveName
+     * @param class-string<object> $expectedClass
      */
+    #[DataProvider('curveProvider')]
     public function testCreateCurve(string $curveName, string $expectedClass): void
     {
+        /** @phpstan-var class-string<object> $expectedClass */
         $curve = CryptoFactory::createCurve($curveName);
         $this->assertInstanceOf($expectedClass, $curve);
+        $this->assertInstanceOf(CurveInterface::class, $curve);
     }
 
     /**
      * 椭圆曲线数据提供者
      */
-    protected static function curveProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: class-string}>
+     */
+    public static function curveProvider(): array
     {
         return [
             ['nistp256', NISTP256::class],
@@ -364,11 +411,13 @@ class CryptoFactoryTest extends TestCase
 
     /**
      * 测试创建密钥格式处理组件
-     *
-     * @dataProvider keyFormatProvider
+     * @param string $type
+     * @param class-string<object> $expectedClass
      */
+    #[DataProvider('keyFormatProvider')]
     public function testCreateKeyFormat(string $type, string $expectedClass): void
     {
+        /** @phpstan-var class-string<object> $expectedClass */
         $handler = CryptoFactory::createKeyFormat($type);
         $this->assertInstanceOf($expectedClass, $handler);
     }
@@ -376,7 +425,10 @@ class CryptoFactoryTest extends TestCase
     /**
      * 密钥格式处理类型数据提供者
      */
-    protected static function keyFormatProvider(): array
+    /**
+     * @return array<int, array{0: string, 1: class-string}>
+     */
+    public static function keyFormatProvider(): array
     {
         return [
             ['basic', PemDerFormat::class],

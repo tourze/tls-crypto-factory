@@ -18,6 +18,7 @@ use Tourze\TLSCryptoCurves\NISTP384;
 use Tourze\TLSCryptoCurves\NISTP521;
 use Tourze\TLSCryptoFactory\Exception\CryptoException;
 use Tourze\TLSCryptoHash\Contract\HashInterface;
+use Tourze\TLSCryptoHash\Contract\KdfInterface;
 use Tourze\TLSCryptoHash\Contract\MacInterface;
 use Tourze\TLSCryptoHash\HashFactory;
 use Tourze\TLSCryptoKeyExchange\Contract\KeyExchangeInterface;
@@ -44,8 +45,6 @@ class CryptoFactory
 {
     /**
      * 创建随机数生成器
-     *
-     * @return RandomInterface
      */
     public static function createRandom(): RandomInterface
     {
@@ -56,7 +55,7 @@ class CryptoFactory
      * 创建哈希函数
      *
      * @param string $algorithm 哈希算法名称
-     * @return HashInterface
+     *
      * @throws CryptoException 如果算法不支持
      */
     public static function createHash(string $algorithm): HashInterface
@@ -72,8 +71,8 @@ class CryptoFactory
      * 创建消息认证码
      *
      * @param string $algorithm MAC算法名称
-     * @param array $options 选项
-     * @return MacInterface
+     * @param array<string, mixed> $options 选项
+     *
      * @throws CryptoException 如果算法不支持
      */
     public static function createMac(string $algorithm, array $options = []): MacInterface
@@ -89,36 +88,40 @@ class CryptoFactory
      * 创建对称加密算法
      *
      * @param string $algorithm 加密算法名称
-     * @param array $options 选项
-     * @return CipherInterface
+     * @param array<string, mixed> $options 选项
+     *
      * @throws CryptoException 如果算法不支持
      */
     public static function createCipher(string $algorithm, array $options = []): CipherInterface
     {
-        if (preg_match('/^aes-(\d+)-gcm$/', $algorithm, $matches)) {
-            $keySize = (int)$matches[1];
+        if (1 === preg_match('/^aes-(\d+)-gcm$/', $algorithm, $matches)) {
+            $keySize = (int) $matches[1];
+
             return new AesGcm($keySize);
         }
 
-        if (preg_match('/^aes-(\d+)-cbc$/', $algorithm, $matches)) {
-            $keySize = (int)$matches[1];
+        if (1 === preg_match('/^aes-(\d+)-cbc$/', $algorithm, $matches)) {
+            $keySize = (int) $matches[1];
+
             return new AesCbc($keySize);
         }
 
-        if (preg_match('/^aes-(\d+)-ctr$/', $algorithm, $matches)) {
-            $keySize = (int)$matches[1];
+        if (1 === preg_match('/^aes-(\d+)-ctr$/', $algorithm, $matches)) {
+            $keySize = (int) $matches[1];
+
             return new AesCtr($keySize);
         }
 
-        if ($algorithm === 'chacha20-poly1305') {
+        if ('chacha20-poly1305' === $algorithm) {
             return new ChaCha20Poly1305();
         }
 
-        if (in_array($algorithm, ['3des', 'des-ede3-cbc', 'des-ede-cbc'])) {
+        if (in_array($algorithm, ['3des', 'des-ede3-cbc', 'des-ede-cbc'], true)) {
             $keySize = 192; // 默认使用192位密钥（完全版本的3DES）
-            if ($algorithm === 'des-ede-cbc') {
+            if ('des-ede-cbc' === $algorithm) {
                 $keySize = 128; // 使用128位密钥（兼容版本）
             }
+
             return new TripleDES($keySize);
         }
 
@@ -129,11 +132,11 @@ class CryptoFactory
      * 创建密钥导出函数
      *
      * @param string $algorithm KDF算法名称
-     * @param array $options 选项
-     * @return \Tourze\TLSCryptoHash\Contract\KdfInterface
+     * @param array<string, mixed> $options 选项
+     *
      * @throws CryptoException 如果算法不支持
      */
-    public static function createKdf(string $algorithm, array $options = []): \Tourze\TLSCryptoHash\Contract\KdfInterface
+    public static function createKdf(string $algorithm, array $options = []): KdfInterface
     {
         try {
             return HashFactory::createKdf($algorithm, $options);
@@ -146,8 +149,8 @@ class CryptoFactory
      * 创建非对称加密算法
      *
      * @param string $algorithm 算法名称
-     * @param array $options 选项
-     * @return AsymmetricCipherInterface
+     * @param array<string, mixed> $options 选项
+     *
      * @throws CryptoException 如果算法不支持
      */
     public static function createAsymmetricCipher(string $algorithm, array $options = []): AsymmetricCipherInterface
@@ -166,8 +169,8 @@ class CryptoFactory
      * 创建密钥交换算法
      *
      * @param string $algorithm 算法名称
-     * @param array $options 选项
-     * @return KeyExchangeInterface
+     * @param array<string, mixed> $options 选项
+     *
      * @throws CryptoException 如果算法不支持
      */
     public static function createKeyExchange(string $algorithm, array $options = []): KeyExchangeInterface
@@ -185,7 +188,7 @@ class CryptoFactory
      * 创建椭圆曲线
      *
      * @param string $curveName 曲线名称
-     * @return CurveInterface
+     *
      * @throws CryptoException 如果曲线不支持
      */
     public static function createCurve(string $curveName): CurveInterface
@@ -204,7 +207,9 @@ class CryptoFactory
      * 创建密钥格式处理组件
      *
      * @param string $type 处理类型，可选值：'basic'（基本PEM/DER转换）、'cert'（证书处理）、'key'（密钥处理）
+     *
      * @return object 相应的处理类实例
+     *
      * @throws CryptoException 如果类型不支持
      */
     public static function createKeyFormat(string $type): object

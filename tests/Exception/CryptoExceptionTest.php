@@ -2,16 +2,25 @@
 
 declare(strict_types=1);
 
-namespace Tourze\TLSCryptoFactory\Tests\Unit\Exception;
+namespace Tourze\TLSCryptoFactory\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 use Tourze\TLSCryptoFactory\Exception\CryptoException;
 
 /**
  * CryptoException 测试类
+ *
+ * @internal
  */
-class CryptoExceptionTest extends TestCase
+#[CoversClass(CryptoException::class)]
+final class CryptoExceptionTest extends AbstractExceptionTestCase
 {
+    protected function getExceptionClass(): string
+    {
+        return CryptoException::class;
+    }
+
     /**
      * 测试异常基本功能
      */
@@ -48,7 +57,7 @@ class CryptoExceptionTest extends TestCase
     public function testExceptionInheritance(): void
     {
         $exception = new CryptoException('Test message');
-        
+
         $this->assertInstanceOf(\Exception::class, $exception);
         $this->assertInstanceOf(\Throwable::class, $exception);
     }

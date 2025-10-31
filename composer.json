@@ -1,10 +1,9 @@
 {
   "name": "tourze/tls-crypto-factory",
-  "description": "TLS加密组件工厂",
+  "description": "TLS加密组件的统一工厂类，提供创建各种加密算法实例的便捷方法",
   "type": "library",
   "license": "MIT",
   "require": {
-    "php": "^8.1",
     "ext-gmp": "*",
     "ext-hash": "*",
     "ext-openssl": "*",
@@ -19,9 +18,11 @@
     "tourze/tls-key-format": "0.0.*"
   },
   "require-dev": {
-    "maglnet/composer-require-checker": "^4",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^10.0"
+    "phpunit/phpunit": "^11.5",
+    "tourze/phpunit-base": "1.*",
+    "tourze/phpunit-symfony-kernel-test": "0.0.*",
+    "tourze/symfony-testing-framework": "0.0.*"
   },
   "autoload": {
     "psr-4": {
